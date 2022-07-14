@@ -107,7 +107,7 @@ public class Play_gui {
     		for(int check : hor) {
     			row++;
     			if(check == 1) {
-    				blocks[count] = new Block(40*row+20,40*col+20, color[shapeNum]);
+    				blocks[count] = new Block(40*row,40*col, color[shapeNum]);
     				count++;
     			}
     			else continue;
@@ -123,6 +123,8 @@ public class Play_gui {
     }
     // 모든 블럭의 위치를 배열 location에 저장한다.
     
+	
+	
 	private void printBackground(/*blocks 이용*/) {
 		for(int i=0; i<location.length; i++) {
 			for(int j=0; j<location[i].length; j++) {
@@ -141,6 +143,16 @@ public class Play_gui {
 			
 		}
     }
+	// 테트리스 블럭을 그린다.
+	
+	private void init_playPanel() {
+		playPanel.removeAll();
+		printBackground();
+		printBlock();
+	}
+	// 패널을 초기화하고, 배경과 테트리스 블럭을 그린다.
+	
+	
 	
 	private void move(int direction/*blocks 이용*/) {
 		int x = 40;
@@ -158,4 +170,6 @@ public class Play_gui {
 	}
 	// blocks의 모든 블럭에 대해 y좌표를 조정한다.
 	// 최대한 내려갈 수 있는 데 까지 내려간다.
+	// 미완
+
 }

@@ -5,30 +5,33 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Play_gui {
-	static private Block blocks[] = new Block[4];
-	// ºí·° ¹¶Ä¡
 
-	static private int blockColumn = 2;        // ºí·°ÀÌ Â÷ÁöÇÏ´Â n*m °ø°£ÀÌ È¸Àü µÉ ¶§¸¶´Ù ¼¼·Î°¡ 2, 4 Áß ÇÏ³ª·Î º¯°æµÇ¹Ç·Î ±× Á¤º¸¸¦ ÀúÀå
-	static private int blockStart[] = {1, 2};  // ºí·°ÀÌ Â÷ÁöÇÏ´Â n*m ÁÂ»ó´Ü ÁÂÇ¥¸¦ Ç×»ó ±â¾ï
+	static private Block blocks[] = new Block[4];
+	// ë¸”ëŸ­ ë­‰ì¹˜
+
+	static private int blockColumn = 2;        // ë¸”ëŸ­ì´ ì°¨ì§€í•˜ëŠ” n*m ê³µê°„ì´ íšŒì „ ë  ë•Œë§ˆë‹¤ ì„¸ë¡œê°€ 2, 4 ì¤‘ í•˜ë‚˜ë¡œ ë³€ê²½ë˜ë¯€ë¡œ ê·¸ ì •ë³´ë¥¼ ì €ì¥
+	static private int blockStart[] = {1, 2};  // ë¸”ëŸ­ì´ ì°¨ì§€í•˜ëŠ” n*m ì¢Œìƒë‹¨ ì¢Œí‘œë¥¼ í•­ìƒ ê¸°ì–µ
 	
 	static private int location[][] = new int[20][10];
-	// ºí·° À§Ä¡ ÀúÀå  : ¸Ş¼­µå°¡ ÇÊ¿ä
+	// ë¸”ëŸ­ ìœ„ì¹˜ ì €ì¥  : ë©”ì„œë“œê°€ í•„ìš”
 	
 	static private int shape[][][] = {
+
 			{{1,1,1,1},{0,0,0,0}/*,{0,0,0,0},{0,0,0,0}*/}
 	}; 
-	// 7°³
+	// 7ê°œ
 	
+
 	static private Color color[] = {
 			Color.RED,
 			Color.ORANGE,
 			Color.YELLOW,
 			Color.GREEN,
 			Color.BLUE,
-			Color.BLACK, //³²»ö
-			Color.WHITE  //º¸¶ó»ö
+			Color.BLACK, //ë‚¨ìƒ‰
+			Color.WHITE  //ë³´ë¼ìƒ‰
 	};
-	// 7°³
+	// 7ê°œ
 	private JFrame frame = new JFrame("Tetris");
 	private JPanel playPanel = new JPanel();
 	private JPanel scorePanel = new JPanel();
@@ -53,10 +56,10 @@ public class Play_gui {
 		rotationRight();
 	}
 	
-	// 2Â÷¿ø ¹è¿­À» ½Ã°è¹æÇâÀ¸·Î 90µµ È¸ÀüÇÏ±â
-	// È¸ÀüÀÌ µÇ´Â Ãà: blockStart[0], blockStart[1]
-	// blocks[]¿¡ ÇöÀç ¼±ÅÃµÈ ºí·°ÀÇ °´Ã¼°¡ µé¾îÀÖÀ½ -> °´Ã¼°¡ ÀÚ¸®ÇÏ´Â À§Ä¡¸¦ n*m ¹è¿­·Î ³ªÅ¸³½ µÚ, È¸Àü½ÃÄÑ¼­ m*n ¹è¿­·Î º¯°æ
-	// º¯°æµÊ m*n ¹è¿­¿¡¼­ ÀÚ¸®¸¦ Â÷ÁöÇÏ°í ÀÖ´Â ºÎºĞÀÌ °´Ã¼ÀÇ À§Ä¡ÀÌ¹Ç·Î °´Ã¼ÀÇ x, y ÁÂÇ¥ Á¤º¸¸¦ È¸Àü ÀÌÈÄ ÁÂÇ¥·Î º¯°æ
+	// 2ì°¨ì› ë°°ì—´ì„ ì‹œê³„ë°©í–¥ìœ¼ë¡œ 90ë„ íšŒì „í•˜ê¸°
+	// íšŒì „ì´ ë˜ëŠ” ì¶•: blockStart[0], blockStart[1]
+	// blocks[]ì— í˜„ì¬ ì„ íƒëœ ë¸”ëŸ­ì˜ ê°ì²´ê°€ ë“¤ì–´ìˆìŒ -> ê°ì²´ê°€ ìë¦¬í•˜ëŠ” ìœ„ì¹˜ë¥¼ n*m ë°°ì—´ë¡œ ë‚˜íƒ€ë‚¸ ë’¤, íšŒì „ì‹œì¼œì„œ m*n ë°°ì—´ë¡œ ë³€ê²½
+	// ë³€ê²½ë¨ m*n ë°°ì—´ì—ì„œ ìë¦¬ë¥¼ ì°¨ì§€í•˜ê³  ìˆëŠ” ë¶€ë¶„ì´ ê°ì²´ì˜ ìœ„ì¹˜ì´ë¯€ë¡œ ê°ì²´ì˜ x, y ì¢Œí‘œ ì •ë³´ë¥¼ íšŒì „ ì´í›„ ì¢Œí‘œë¡œ ë³€ê²½
 	static public void rotationRight() {
 		int testXY[][] = {{1, 2}, {1,3}, {2, 3}, {2, 4}};
 		int change[][] = new int[(blockColumn % 4) + 2][blockColumn];
@@ -69,17 +72,16 @@ public class Play_gui {
     		change[i][0] = testXY[i][1] + blockStart[0] - blockStart[1];
     		change[i][1] = blockColumn - 1 - testXY[i][0] + blockStart[0] + blockStart[1];
     	}
-    	blockColumn = (blockColumn % 4) + 2; // È¸Àü µÇ¾úÀ¸¹Ç·Î ¼¼·Î ±æÀÌ º¯°æ
+    	blockColumn = (blockColumn % 4) + 2; // íšŒì „ ë˜ì—ˆìœ¼ë¯€ë¡œ ì„¸ë¡œ ê¸¸ì´ ë³€ê²½
     	
     	for(int i = 0; i < 4; i++) {
     		System.out.println(change[i][0] + " " + change[i][1]);
     	}
     	
-    	/*
-        int[][] ret = new int[key.length][key[0].length];
+        /*int[][] ret = new int[key.length][key[0].length];
         for(int i=0; i<key[0].length; i++) {
             for(int j=0; j<key.length; j++) {
-                // ¿À¸¥ÂÊÀ¸·Î 90µµ È¸Àü
+                // ì˜¤ë¥¸ìª½ìœ¼ë¡œ 90ë„ íšŒì „
                 ret[i][j] = key[key.length-1-j][i];
             }
         }*/
@@ -87,8 +89,7 @@ public class Play_gui {
     
     
 	private void setBlock(int shapeNum) {
-		blockColumn = 2; // ºí·°ÀÇ ¼¼·Î ¹üÀ§´Â 2·Î ÃÊ±â°ªÀ» ÁÜ. ºí·° »ı¼º ½Ã¸¶´Ù ÃÊ±âÈ­
-    	
+		blockColumn = 2; // ë¸”ëŸ­ì˜ ì„¸ë¡œ ë²”ìœ„ëŠ” 2ë¡œ ì´ˆê¸°ê°’ì„ ì¤Œ. ë¸”ëŸ­ ìƒì„± ì‹œë§ˆë‹¤ ì´ˆê¸°í™”
     	int[][] selected = shape[shapeNum];
     	int row = -1; int col = -1;
     	int count = 0;
@@ -105,14 +106,15 @@ public class Play_gui {
     		}
     	}
     }
-    // Å×Æ®¸®½º ºí·°À» ±¸¼ºÇÑ´Ù.
+    // í…ŒíŠ¸ë¦¬ìŠ¤ ë¸”ëŸ­ì„ êµ¬ì„±í•œë‹¤.
     
 	private void setLocate() {
     	
     }
-    // ¸ğµç ºí·°ÀÇ À§Ä¡¸¦ ÀúÀåÇÑ´Ù.
+    // ëª¨ë“  ë¸”ëŸ­ì˜ ìœ„ì¹˜ë¥¼ ì €ì¥í•œë‹¤.
     
-	private void printBlock(/*blocks ÀÌ¿ë*/) {
+	private void printBlock(/*blocks ì´ìš©*/) {
+
     	
     }
 }

@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Play_gui {
-
+	//for test
 	static private Block blocks[] = new Block[4];
 	// 블럭 뭉치
 

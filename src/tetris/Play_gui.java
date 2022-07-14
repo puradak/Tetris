@@ -1,6 +1,8 @@
 package tetris;
 
 import java.awt.Color;
+import java.awt.Graphics;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -8,7 +10,7 @@ public class Play_gui {
 	//for test
 	static private Block blocks[] = new Block[4];
 	// 블럭 뭉치
-
+	static private Graphics painter;
 	static private int blockColumn = 2;        // 블럭이 차지하는 n*m 공간이 회전 될 때마다 세로가 2, 4 중 하나로 변경되므로 그 정보를 저장
 	static private int blockStart[] = {1, 2};  // 블럭이 차지하는 n*m 좌상단 좌표를 항상 기억
 	
@@ -26,7 +28,7 @@ public class Play_gui {
 	}; 
 	// 7개
 	
-
+	static private Color backColor = Color.GRAY;
 	static private Color color[] = {
 			Color.RED,
 			Color.ORANGE,
@@ -58,7 +60,8 @@ public class Play_gui {
 		scorePanel.setBackground(Color.GRAY);
 		frame.add(scorePanel);
 		
-		rotationRight();
+		painter = playPanel.getGraphics();
+		//rotationRight();
 	}
 	
 	// 2차원 배열을 시계방향으로 90도 회전하기
@@ -114,11 +117,45 @@ public class Play_gui {
     // 테트리스 블럭을 구성한다.
     
 	private void setLocate() {
-    	
+    	for(Block block : blocks) {
+    		location[block.getY()][block.getX()] = 1;
+    	}
     }
-    // 모든 블럭의 위치를 저장한다.
+    // 모든 블럭의 위치를 배열 location에 저장한다.
     
+	private void printBackground(/*blocks 이용*/) {
+		for(int i=0; i<location.length; i++) {
+			for(int j=0; j<location[i].length; j++) {
+				if(location[i][j] == 1) {
+					// 채우기
+				}
+			}
+		}
+	}
+	// 배경에 등록된 블럭을 그린다.
+	
 	private void printBlock(/*blocks 이용*/) {
-
+		for(Block block : blocks) {
+			
+			painter.setColor(block.getColor());
+			
+		}
     }
+	
+	private void move(int direction/*blocks 이용*/) {
+		int x = 40;
+		if(direction == 0) x = -40;  
+		
+		for(Block block : blocks) {
+			block.setXY(block.getX()+x, block.getY());
+		}
+	}
+	// blocks의 모든 블럭에 대해 x좌표를 조정한다.
+	// direction : 0 (왼쪽), 1 (오른쪽)
+	
+	private void move() {
+		
+	}
+	// blocks의 모든 블럭에 대해 y좌표를 조정한다.
+	// 최대한 내려갈 수 있는 데 까지 내려간다.
 }

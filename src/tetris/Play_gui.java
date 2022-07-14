@@ -172,4 +172,22 @@ public class Play_gui {
 	// 최대한 내려갈 수 있는 데 까지 내려간다.
 	// 미완
 
+	
+	private boolean hitCheck(int direction) {
+		int diff_x = 0;
+		int diff_y = 0;
+		
+		if(direction == 0)	diff_x = -40;
+		if(direction == 1)	diff_x = 40;
+		if(direction == 2)	diff_y = 40;
+		
+		for(Block block : blocks) {
+			int dest_x = (block.getX()+diff_x)/40;
+			int dest_y = (block.getY()+diff_y)/40;
+			
+			if(location[dest_y][dest_x] == 1) return true;
+		}
+		return false;
+	}
+	// 가려는 방향에 블럭이 존재하면 true, 아니면 false를 리턴한다.
 }

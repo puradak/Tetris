@@ -15,6 +15,9 @@ public class Play_gui {
 
 	static private int BACKSIZE_X = 400/SIZE_X;
 	static private int BACKSIZE_Y = 800/SIZE_Y;
+
+	static private int init_coord_X = 5*SIZE_X;
+	static private int init_coord_Y = 0;
 	
 	static private Block blocks[] = new Block[4];
 	// 블럭 뭉치
@@ -28,7 +31,7 @@ public class Play_gui {
 	static private int shape[][][] = {
 			{{1,1,1,1},{0,0,0,0}},	// 일자
 			{{1,1,0,0},{0,1,1,0}},	// ㄹ자
-			{{0,0,1,1},{0,1,1,0}},	// 역 ㄹ자
+			{{0,1,1,0},{1,1,0,0}},	// 역 ㄹ자
 			{{1,1,0,0},{1,1,0,0}},	// ㅁ자
 			{{1,1,1,0},{0,0,1,0}},	// ㄱ자
 			{{1,1,1,0},{1,0,0,0}},	// 역 ㄱ자
@@ -42,8 +45,8 @@ public class Play_gui {
 			Color.ORANGE,
 			Color.YELLOW,
 			Color.GREEN,
-			Color.BLUE,
-			new Color(0,0,102), //남색
+			Color.CYAN,
+			Color.BLUE, //남색
 			new Color(153,102,255)  //보라색
 	};
 	// 7개
@@ -69,12 +72,14 @@ public class Play_gui {
 		frame.add(scorePanel);
 		
 		painter = playPanel.getGraphics();
+		
 		//rotationRight();
+		
 		frame.addKeyListener(new KeyAdapter() {
 			int number = 0;
 			@Override
 			public void keyPressed(KeyEvent e) {
-				painter.clearRect(0, 0, 200, 100);
+				playPanel.paint(painter);
 				setBlock((number++)%7);
 				printBlock();
 			}
@@ -155,10 +160,12 @@ public class Play_gui {
 	
 	private void printBlock(/*blocks 이용*/) {
 		for(Block block : blocks) {
-			
+			painter.setColor(block.getColor());
+			painter.fillRect(block.getX(), block.getY(), SIZE_X, SIZE_Y);
+		}
+		for(Block block : blocks) {
+			painter.setColor(Color.BLACK);
 			painter.drawRect(block.getX(), block.getY(), SIZE_X, SIZE_Y);
-			
-			
 		}
     }
 	// 테트리스 블럭을 그린다.

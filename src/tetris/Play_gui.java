@@ -12,6 +12,9 @@ public class Play_gui {
 	
 	static final private int SIZE_X = 40;
 	static final private int SIZE_Y = 40;
+
+	static private int BACKSIZE_X = 400/SIZE_X;
+	static private int BACKSIZE_Y = 800/SIZE_Y;
 	
 	static private Block blocks[] = new Block[4];
 	// 블럭 뭉치
@@ -19,7 +22,7 @@ public class Play_gui {
 	static private int blockColumn = 2;        // 블럭이 차지하는 n*m 공간이 회전 될 때마다 세로가 2, 4 중 하나로 변경되므로 그 정보를 저장
 	static private int blockStart[] = {1, 2};  // 블럭이 차지하는 n*m 좌상단 좌표를 항상 기억
 	
-	static private int location[][] = new int[20][10];
+	static private int location[][] = new int[BACKSIZE_Y][BACKSIZE_X];
 	// 블럭 위치 저장  : 메서드가 필요
 	
 	static private int shape[][][] = {

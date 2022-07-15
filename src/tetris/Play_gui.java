@@ -13,6 +13,9 @@ public class Play_gui {
 	static final private int SIZE_X = 40;
 	static final private int SIZE_Y = 40;
 
+	static final private int LEFT = 0;
+	static final private int RIGHT = 1;
+	
 	static private int BACKSIZE_X = 400/SIZE_X;
 	static private int BACKSIZE_Y = 800/SIZE_Y;
 
@@ -52,7 +55,7 @@ public class Play_gui {
 	private JFrame frame = new JFrame("Tetris");
 	private JPanel playPanel = new JPanel();
 	private JPanel scorePanel = new JPanel();
-	
+	int blockCount = 0;
 	public Play_gui() {
 		
 		frame.setSize(600,800);
@@ -73,17 +76,38 @@ public class Play_gui {
 		painter = playPanel.getGraphics();
 		
 		//rotationRight();
+		playPanel.paint(painter);
+		setBlockShape(0);
+		printBlock();
+		
 		
 		frame.addKeyListener(new KeyAdapter() {
-			int number = 0;
 			@Override
 			public void keyPressed(KeyEvent e) {
+				blockCount += 1;
 				playPanel.paint(painter);
-				setBlock((number++)%7);
+				if(e.getKeyChar() == 'a') {
+					for(Block block : blocks) {
+						block.setXY(block.getX()-SIZE_X,SIZE_Y);
+					}
+					System.out.println(blockCount);
+				}
+				if(e.getKeyChar() == 'd') {
+					for(Block block : blocks) {
+						block.setXY(block.getX()+SIZE_X,SIZE_Y);
+					}
+					System.out.println(blockCount);
+				}
+				if(e.getKeyChar() == ' ') {
+					
+					rotationRight();
+				}
 				printBlock();
+				blockCount++;
 			}
 		});
 	}
+
 	
 	// 2차원 배열을 시계방향으로 90도 회전하기
 	// 회전이 되는 축: blockStart[0], blockStart[1]
@@ -117,7 +141,11 @@ public class Play_gui {
     }
     
     
-	private void setBlock(int shapeNum) {
+	private void setBlockCoord(int x, int y) {
+		
+	}
+	
+	private void setBlockShape(int shapeNum) {
 		blockColumn = 2; // 블럭의 세로 범위는 2로 초기값을 줌. 블럭 생성 시마다 초기화
     	int[][] selected = shape[shapeNum];
     	int row = -1; int col = -1;

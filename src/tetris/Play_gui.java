@@ -2,12 +2,17 @@ package tetris;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Play_gui {
-	//for test
+	
+	static final private int SIZE_X = 40;
+	static final private int SIZE_Y = 40;
+	
 	static private Block blocks[] = new Block[4];
 	// 블럭 뭉치
 	static private Graphics painter;
@@ -62,6 +67,15 @@ public class Play_gui {
 		
 		painter = playPanel.getGraphics();
 		//rotationRight();
+		frame.addKeyListener(new KeyAdapter() {
+			int number = 0;
+			@Override
+			public void keyPressed(KeyEvent e) {
+				painter.clearRect(0, 0, 200, 100);
+				setBlock((number++)%7);
+				printBlock();
+			}
+		});
 	}
 	
 	// 2차원 배열을 시계방향으로 90도 회전하기
@@ -107,7 +121,7 @@ public class Play_gui {
     		for(int check : hor) {
     			row++;
     			if(check == 1) {
-    				blocks[count] = new Block(40*row,40*col, color[shapeNum]);
+    				blocks[count] = new Block(SIZE_X*row,SIZE_Y*col, color[shapeNum]);
     				count++;
     			}
     			else continue;
@@ -139,7 +153,8 @@ public class Play_gui {
 	private void printBlock(/*blocks 이용*/) {
 		for(Block block : blocks) {
 			
-			painter.setColor(block.getColor());
+			painter.drawRect(block.getX(), block.getY(), SIZE_X, SIZE_Y);
+			
 			
 		}
     }
@@ -156,7 +171,7 @@ public class Play_gui {
 	
 	private void move(int direction/*blocks 이용*/) {
 		int x = 40;
-		if(direction == 0) x = -40;  
+		if(direction == 0) x = -SIZE_X;  
 		
 		for(Block block : blocks) {
 			block.setXY(block.getX()+x, block.getY());
@@ -177,13 +192,13 @@ public class Play_gui {
 		int diff_x = 0;
 		int diff_y = 0;
 		
-		if(direction == 0)	diff_x = -40;
-		if(direction == 1)	diff_x = 40;
-		if(direction == 2)	diff_y = 40;
+		if(direction == 0)	diff_x = -SIZE_X;
+		if(direction == 1)	diff_x = SIZE_X;
+		if(direction == 2)	diff_y = SIZE_Y;
 		
 		for(Block block : blocks) {
-			int dest_x = (block.getX()+diff_x)/40;
-			int dest_y = (block.getY()+diff_y)/40;
+			int dest_x = (block.getX()+diff_x)/SIZE_X;
+			int dest_y = (block.getY()+diff_y)/SIZE_Y;
 			
 			if(location[dest_y][dest_x] == 1) return true;
 		}

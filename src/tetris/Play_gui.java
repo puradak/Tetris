@@ -55,7 +55,7 @@ public class Play_gui {
 	private JFrame frame = new JFrame("Tetris");
 	private JPanel playPanel = new JPanel();
 	private JPanel scorePanel = new JPanel();
-	int blockCount = 0;
+	
 	public Play_gui() {
 		
 		frame.setSize(600,800);
@@ -77,33 +77,29 @@ public class Play_gui {
 		
 		//rotationRight();
 		playPanel.paint(painter);
-		setBlockShape(0);
+		setBlockShape(4);
 		printBlock();
 		
 		
 		frame.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				blockCount += 1;
 				playPanel.paint(painter);
 				if(e.getKeyChar() == 'a') {
 					for(Block block : blocks) {
-						block.setXY(block.getX()-SIZE_X,SIZE_Y);
+						move(LEFT);
 					}
-					System.out.println(blockCount);
 				}
 				if(e.getKeyChar() == 'd') {
 					for(Block block : blocks) {
-						block.setXY(block.getX()+SIZE_X,SIZE_Y);
+						move(RIGHT);
 					}
-					System.out.println(blockCount);
 				}
 				if(e.getKeyChar() == ' ') {
 					
 					rotationRight();
 				}
 				printBlock();
-				blockCount++;
 			}
 		});
 	}
@@ -207,12 +203,16 @@ public class Play_gui {
 	
 	
 	private void move(int direction/*blocks 이용*/) {
-		int x = 40;
-		if(direction == 0) x = -SIZE_X;  
-		
+		int x = 10;
+		if(direction == 0) x *= -1;  
 		for(Block block : blocks) {
+			if(block.getX()+x < 0 || block.getX()+SIZE_X+x > 400) return;
+		}
+		for(Block block : blocks) {
+			System.out.print(block.getX()+" ");
 			block.setXY(block.getX()+x, block.getY());
 		}
+		System.out.println();
 	}
 	// blocks의 모든 블럭에 대해 x좌표를 조정한다.
 	// direction : 0 (왼쪽), 1 (오른쪽)

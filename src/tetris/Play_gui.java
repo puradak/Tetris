@@ -39,7 +39,6 @@ public class Play_gui {
 	}; 
 	// 7개
 	
-	static private Color backColor = Color.GRAY;
 	static private Color color[] = {
 			Color.RED,
 			Color.ORANGE,

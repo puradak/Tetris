@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -16,19 +19,25 @@ public class Play_gui {
 	static final private int LEFT = 0;
 	static final private int RIGHT = 1;
 	
+	static final private int LEFT_LIMIT = 0;
+	static final private int RIGHT_LIMIT = 360;
+	
 	static private int BACKSIZE_X = 400/SIZE_X;
 	static private int BACKSIZE_Y = 800/SIZE_Y;
 
-	static private int init_coord_X = 5*SIZE_X;
+	static private int init_coord_X = 4*SIZE_X;
 	static private int init_coord_Y = 0;
 	
 	static private Block blocks[] = new Block[4];
 	// 블럭 뭉치
 	static private Graphics painter;
+	
+	static private Random rand = new Random();
+	
 	static private int blockColumn = 2;        // 블럭이 차지하는 n*m 공간이 회전 될 때마다 세로가 2, 4 중 하나로 변경되므로 그 정보를 저장
 	static private int blockStart[] = {1, 2};  // 블럭이 차지하는 n*m 좌상단 좌표를 항상 기억
 	
-	static private int location[][] = new int[BACKSIZE_Y][BACKSIZE_X];
+	static private int location[][] = new int[BACKSIZE_Y+1][BACKSIZE_X];
 	// 블럭 위치 저장  : 메서드가 필요
 	
 	static private int shape[][][] = {
@@ -76,34 +85,64 @@ public class Play_gui {
 		painter = playPanel.getGraphics();
 		
 		//rotationRight();
+		
+		for(int i=0; i<location[20].length; i++) {
+			location[20][i] = 1;
+		}
+		
+		
 		playPanel.paint(painter);
-		setBlockShape(4);
+		setBlockShape(rand.nextInt(7));
 		printBlock();
 		
+		TimerTask moveDown = new TimerTask() {
+			@Override
+			public void run() {
+				
+				boolean hitFlag = false;
+				
+				for(Block block : blocks) {
+					if(location[block.getY()/40 + 2][block.getX()/40] == 1) {
+						for(Block result :blocks) {
+							location[result.getY()/40 + 1][result.getX()/40] = 1;
+						}
+						hitFlag = true;
+						break;
+					}
+				}
+				// 구조물이나 땅에 닿은 경우, location에 위치정보 기록
+				
+				if(hitFlag) {
+					setBlockShape(rand.nextInt(7));
+					hitFlag = false;
+				}
+				// 구조물이나 땅에 닿은 경우, 블럭들의 좌표를 초기 위치로 설정함.
+				for(Block block : blocks) {
+					block.setXY(block.getX(), block.getY() + 8);
+				}
+				printBlocks();
+				// 블럭과 구조물 출력
+			}
+		};
+		
+		Timer moveManager = new Timer("timer");
+		moveManager.schedule(moveDown, 50, 100);
 		
 		frame.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				playPanel.paint(painter);
+				printBlocks();
+				
 				if(e.getKeyChar() == 'a') {
-					for(Block block : blocks) {
-						move(LEFT);
-					}
+					move(LEFT);
 				}
 				if(e.getKeyChar() == 'd') {
-					for(Block block : blocks) {
-						move(RIGHT);
-					}
+					move(RIGHT);
 				}
-				if(e.getKeyChar() == ' ') {
-					
-					rotationRight();
-				}
-				printBlock();
 			}
 		});
 	}
-
 	
 	// 2차원 배열을 시계방향으로 90도 회전하기
 	// 회전이 되는 축: blockStart[0], blockStart[1]
@@ -123,10 +162,6 @@ public class Play_gui {
     	}
     	blockColumn = (blockColumn % 4) + 2; // 회전 되었으므로 세로 길이 변경
     	
-    	for(int i = 0; i < 4; i++) {
-    		System.out.println(change[i][0] + " " + change[i][1]);
-    	}
-    	
         /*int[][] ret = new int[key.length][key[0].length];
         for(int i=0; i<key[0].length; i++) {
             for(int j=0; j<key.length; j++) {
@@ -135,11 +170,6 @@ public class Play_gui {
             }
         }*/
     }
-    
-    
-	private void setBlockCoord(int x, int y) {
-		
-	}
 	
 	private void setBlockShape(int shapeNum) {
 		blockColumn = 2; // 블럭의 세로 범위는 2로 초기값을 줌. 블럭 생성 시마다 초기화
@@ -152,7 +182,7 @@ public class Play_gui {
     		for(int check : hor) {
     			row++;
     			if(check == 1) {
-    				blocks[count] = new Block(SIZE_X*row,SIZE_Y*col, color[shapeNum]);
+    				blocks[count] = new Block(SIZE_X*row+init_coord_X,SIZE_Y*col+init_coord_Y, color[shapeNum]);
     				count++;
     			}
     			else continue;
@@ -160,22 +190,23 @@ public class Play_gui {
     	}
     }
     // 테트리스 블럭을 구성한다.
-    
-	private void setLocate() {
-    	for(Block block : blocks) {
-    		location[block.getY()][block.getX()] = 1;
-    	}
-    }
-    // 모든 블럭의 위치를 배열 location에 저장한다.
-    
 	
+	private void printBlocks(){
+		playPanel.paint(painter);
+		printBackground();
+		printBlock();
+	}
 	
-	private void printBackground(/*blocks 이용*/) {
+	private void printBackground() {
 		for(int i=0; i<location.length; i++) {
 			for(int j=0; j<location[i].length; j++) {
 				if(location[i][j] == 1) {
-					// 채우기
+					painter.setColor(new Color(51,51,51));
+					painter.fillRect(SIZE_X*j, SIZE_Y*(i-1), SIZE_X, SIZE_Y);
+					painter.setColor(Color.BLACK);
+					painter.drawRect(SIZE_X*j, SIZE_Y*(i-1), SIZE_X, SIZE_Y);
 				}
+				
 			}
 		}
 	}
@@ -192,30 +223,22 @@ public class Play_gui {
 		}
     }
 	// 테트리스 블럭을 그린다.
-	
-	private void init_playPanel() {
-		playPanel.removeAll();
-		printBackground();
-		printBlock();
-	}
-	// 패널을 초기화하고, 배경과 테트리스 블럭을 그린다.
-	
-	
+		
 	
 	private void move(int direction/*blocks 이용*/) {
-		int x = 10;
-		if(direction == 0) x *= -1;  
+		int x = SIZE_X;
+		if(direction == LEFT) x *= -1;
+		
 		for(Block block : blocks) {
-			if(block.getX()+x < 0 || block.getX()+SIZE_X+x > 400) return;
+			if(block.getX()+x < LEFT_LIMIT || block.getX()+x > RIGHT_LIMIT) return;
+			if(location[block.getY()/SIZE_Y][(block.getX()+x)/SIZE_X] == 1) return;
 		}
+		
 		for(Block block : blocks) {
-			System.out.print(block.getX()+" ");
 			block.setXY(block.getX()+x, block.getY());
 		}
-		System.out.println();
 	}
 	// blocks의 모든 블럭에 대해 x좌표를 조정한다.
-	// direction : 0 (왼쪽), 1 (오른쪽)
 	
 	private void move() {
 		
@@ -224,22 +247,4 @@ public class Play_gui {
 	// 최대한 내려갈 수 있는 데 까지 내려간다.
 	// 미완
 
-	
-	private boolean hitCheck(int direction) {
-		int diff_x = 0;
-		int diff_y = 0;
-		
-		if(direction == 0)	diff_x = -SIZE_X;
-		if(direction == 1)	diff_x = SIZE_X;
-		if(direction == 2)	diff_y = SIZE_Y;
-		
-		for(Block block : blocks) {
-			int dest_x = (block.getX()+diff_x)/SIZE_X;
-			int dest_y = (block.getY()+diff_y)/SIZE_Y;
-			
-			if(location[dest_y][dest_x] == 1) return true;
-		}
-		return false;
-	}
-	// 가려는 방향에 블럭이 존재하면 true, 아니면 false를 리턴한다.
 }

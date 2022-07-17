@@ -9,6 +9,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class Play_gui {
@@ -61,8 +62,8 @@ public class Play_gui {
 	private JFrame frame = new JFrame("Tetris");	// gui 프레임
 	private JPanel playPanel = new JPanel();		// 테트리스 게임이 진행되는 패널
 	private JPanel scorePanel = new JPanel();		// 점수 등 기타 정보가 출력되는 패널
-	
-	private int score;								// 점수
+	private JLabel scoreLabel = new JLabel();
+	private int score = 0;								// 점수
 	
 	public Play_gui() {
 		
@@ -80,6 +81,10 @@ public class Play_gui {
 		scorePanel.setBounds(400,0,200,800);
 		scorePanel.setBackground(Color.GRAY);
 		frame.add(scorePanel);
+		
+		scorePanel.add(scoreLabel);
+		scoreLabel.setBounds(20,100,200,20);
+		scoreLabel.setText("점수 : "+score+"점");
 		
 		painter = playPanel.getGraphics();
 		
@@ -255,7 +260,6 @@ public class Play_gui {
 
 	private void checkLineFull() {
 		int lineCount = 0;
-		int emptyCount = 0;
 		for(int i=0; i<location.length-1; i++) {
 			lineCount = 0;
 			for(int j=0; j<location[i].length;j++) {
@@ -273,6 +277,8 @@ public class Play_gui {
 			location[i] = location[i-1];
 		}
 		printBackground();
+		score += 100;
 		
+		scoreLabel.setText("점수 : "+score+"점");
 	}
 }

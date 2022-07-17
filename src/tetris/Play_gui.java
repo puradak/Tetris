@@ -198,17 +198,14 @@ public class Play_gui {
 			System.out.println();
 		}
 		
+		System.out.println();
+		
 		current_coord_X = blocks[0].getX();
 		current_coord_Y = blocks[0].getY();
 		
-		addBlockCoord(current_coord_X,0);
-
-		System.out.println();
-		
 		selectedShape = rotated;
-		
 
-		
+		addBlockCoord(current_coord_X,0);
 		setBlockShape();
 	}
 	

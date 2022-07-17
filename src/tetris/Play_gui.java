@@ -13,45 +13,46 @@ import javax.swing.JPanel;
 
 public class Play_gui {
 	
-	static final private int SIZE_X = 40;
-	static final private int SIZE_Y = 40;
+	final private int SIZE_X = 40;
+	final private int SIZE_Y = 40;
 
-	static final private int LEFT = 0;
-	static final private int RIGHT = 1;
+	final private int LEFT = 0;
+	final private int RIGHT = 1;
 	
-	static final private int LEFT_LIMIT = 0;
-	static final private int RIGHT_LIMIT = 360;
+	final private int LEFT_LIMIT = 0;
+	final private int RIGHT_LIMIT = 360;
 	
-	static private int BACKSIZE_X = 400/SIZE_X;
-	static private int BACKSIZE_Y = 800/SIZE_Y;
-
-	static private int init_coord_X = 4*SIZE_X;
-	static private int init_coord_Y = 0;
+	private int BACKSIZE_X = 400/SIZE_X;
+	private int BACKSIZE_Y = 800/SIZE_Y;
 	
-	static private Block blocks[] = new Block[4];
+	private int current_coord_X = 160;
+	private int current_coord_Y = 0;
+	
+	private Block blocks[] = new Block[4];
 	// 블럭 뭉치
-	static private Graphics painter;
+	private int blockIndex;
 	
-	static private Random rand = new Random();
+	private Graphics painter;
 	
-	static private int blockColumn = 2;        // 블럭이 차지하는 n*m 공간이 회전 될 때마다 세로가 2, 4 중 하나로 변경되므로 그 정보를 저장
-	static private int blockStart[] = {1, 2};  // 블럭이 차지하는 n*m 좌상단 좌표를 항상 기억
+	private Random rand = new Random();
 	
-	static private int location[][] = new int[BACKSIZE_Y+1][BACKSIZE_X];
+	private int location[][] = new int[BACKSIZE_Y+1][BACKSIZE_X];
 	// 블럭 위치 저장  : 메서드가 필요
 	
-	static private int shape[][][] = {
+	 private int shape[][][] = {
 			{{1,1,1,1},{0,0,0,0}},	// 일자
-			{{1,1,0,0},{0,1,1,0}},	// ㄹ자
-			{{0,1,1,0},{1,1,0,0}},	// 역 ㄹ자
-			{{1,1,0,0},{1,1,0,0}},	// ㅁ자
-			{{1,1,1,0},{0,0,1,0}},	// ㄱ자
-			{{1,1,1,0},{1,0,0,0}},	// 역 ㄱ자
-			{{0,1,0,0},{1,1,1,0}}	// ㅗ자
+			{{1,1,0},{0,1,1}},	// ㄹ자
+			{{0,1,1},{1,1,0}},	// 역 ㄹ자
+			{{1,1},{1,1}},	// ㅁ자
+			{{1,1,1},{0,0,1}},	// ㄱ자
+			{{1,1,1},{1,0,0}},	// 역 ㄱ자
+			{{0,1,0},{1,1,1}}	// ㅗ자
 	}; 
 	// 7개
 	
-	static private Color color[] = {
+	 private int selectedShape[][];
+	
+	 private Color color[] = {
 			Color.RED,
 			Color.ORANGE,
 			Color.YELLOW,
@@ -92,7 +93,7 @@ public class Play_gui {
 		
 		
 		playPanel.paint(painter);
-		setBlockShape(rand.nextInt(7));
+		initBlock();
 		printBlock();
 		
 		TimerTask moveDown = new TimerTask() {
@@ -103,22 +104,24 @@ public class Play_gui {
 				
 				for(Block block : blocks) {
 					if(location[block.getY()/40 + 2][block.getX()/40] == 1) {
-						for(Block result :blocks) {
+						for(Block result : blocks) {
 							location[result.getY()/40 + 1][result.getX()/40] = 1;
 						}
 						hitFlag = true;
+						current_coord_X = 160;
+						current_coord_Y = 0;
 						break;
 					}
 				}
 				// 구조물이나 땅에 닿은 경우, location에 위치정보 기록
 				
 				if(hitFlag) {
-					setBlockShape(rand.nextInt(7));
+					initBlock();
 					hitFlag = false;
 				}
 				// 구조물이나 땅에 닿은 경우, 블럭들의 좌표를 초기 위치로 설정함.
 				for(Block block : blocks) {
-					block.setXY(block.getX(), block.getY() + 8);
+					block.setXY(block.getX(), block.getY() + 10);
 				}
 				printBlocks();
 				// 블럭과 구조물 출력
@@ -140,49 +143,30 @@ public class Play_gui {
 				if(e.getKeyChar() == 'd') {
 					move(RIGHT);
 				}
+				if(e.getKeyChar() == ' ') {
+					rotateRight();
+				}
 			}
 		});
 	}
 	
-	// 2차원 배열을 시계방향으로 90도 회전하기
-	// 회전이 되는 축: blockStart[0], blockStart[1]
-	// blocks[]에 현재 선택된 블럭의 객체가 들어있음 -> 객체가 자리하는 위치를 n*m 배열로 나타낸 뒤, 회전시켜서 m*n 배열로 변경
-	// 변경됨 m*n 배열에서 자리를 차지하고 있는 부분이 객체의 위치이므로 객체의 x, y 좌표 정보를 회전 이후 좌표로 변경
-	static public void rotationRight() {
-		int testXY[][] = {{1, 2}, {1,3}, {2, 3}, {2, 4}};
-		int change[][] = new int[(blockColumn % 4) + 2][blockColumn];
-		
-    	for(int i = 0; i < 4; i++) {
-    		// int changeX = blocks[i].getY() + blockStart[0] - blockStart[1];
-    		// int changeY = blockColumn - 1 - blocks[i].getX() + blockStart[0] + blockStart[1];
-    		// blocks[i].setXY(changeX, changeY);
-    		
-    		change[i][0] = testXY[i][1] + blockStart[0] - blockStart[1];
-    		change[i][1] = blockColumn - 1 - testXY[i][0] + blockStart[0] + blockStart[1];
-    	}
-    	blockColumn = (blockColumn % 4) + 2; // 회전 되었으므로 세로 길이 변경
-    	
-        /*int[][] ret = new int[key.length][key[0].length];
-        for(int i=0; i<key[0].length; i++) {
-            for(int j=0; j<key.length; j++) {
-                // 오른쪽으로 90도 회전
-                ret[i][j] = key[key.length-1-j][i];
-            }
-        }*/
-    }
+	private void addBlockCoord(int x, int y) {
+		for(Block block : blocks) {
+			block.addXY(x, y);
+		}
+	}
+	// 테트리스 블럭의 위치를 조정한다.
 	
-	private void setBlockShape(int shapeNum) {
-		blockColumn = 2; // 블럭의 세로 범위는 2로 초기값을 줌. 블럭 생성 시마다 초기화
-    	int[][] selected = shape[shapeNum];
+	private void setBlockShape() {
     	int row = -1; int col = -1;
     	int count = 0;
-    	for(int[] hor : selected) {
+    	for(int[] hor : selectedShape) {
     		col++;
     		row = -1;
     		for(int check : hor) {
     			row++;
     			if(check == 1) {
-    				blocks[count] = new Block(SIZE_X*row+init_coord_X,SIZE_Y*col+init_coord_Y, color[shapeNum]);
+    				blocks[count] = new Block(SIZE_X*row+current_coord_X, SIZE_Y*col+current_coord_Y, color[blockIndex]);
     				count++;
     			}
     			else continue;
@@ -191,11 +175,44 @@ public class Play_gui {
     }
     // 테트리스 블럭을 구성한다.
 	
-	private void printBlocks(){
-		playPanel.paint(painter);
-		printBackground();
-		printBlock();
+	private void initBlock() {
+   		blockIndex = rand.nextInt(7);
+		selectedShape = shape[blockIndex];
+		setBlockShape();
 	}
+	
+	
+	// 테트리스 블럭의 모양을 랜덤으로 설정한다.
+	// 블럭의 위치를 초기 위치로 설정한다.
+	
+	
+	private void rotateRight() {
+	// 2차원 배열을 90도 회전하기
+		int[][] rotated = new int[selectedShape[0].length][selectedShape.length];
+		for(int i=0; i<selectedShape[0].length; i++) {
+			// 오른쪽으로 90도 회전
+			for(int j=0; j<selectedShape.length; j++) {
+				rotated[i][j] = selectedShape[selectedShape.length-1-j][i];
+				System.out.print(rotated[i][j]);
+			}
+			System.out.println();
+		}
+		
+		current_coord_X = blocks[0].getX();
+		current_coord_Y = blocks[0].getY();
+		
+		addBlockCoord(current_coord_X,0);
+
+		System.out.println();
+		
+		selectedShape = rotated;
+		
+
+		
+		setBlockShape();
+	}
+	
+	
 	
 	private void printBackground() {
 		for(int i=0; i<location.length; i++) {
@@ -224,6 +241,12 @@ public class Play_gui {
     }
 	// 테트리스 블럭을 그린다.
 		
+	private void printBlocks(){
+		playPanel.paint(painter);
+		printBackground();
+		printBlock();
+	}
+	// 배경과 테트리스 블럭을 그린다.
 	
 	private void move(int direction/*blocks 이용*/) {
 		int x = SIZE_X;
@@ -235,16 +258,9 @@ public class Play_gui {
 		}
 		
 		for(Block block : blocks) {
-			block.setXY(block.getX()+x, block.getY());
+			block.addXY(x, 0);
 		}
 	}
 	// blocks의 모든 블럭에 대해 x좌표를 조정한다.
-	
-	private void move() {
-		
-	}
-	// blocks의 모든 블럭에 대해 y좌표를 조정한다.
-	// 최대한 내려갈 수 있는 데 까지 내려간다.
-	// 미완
 
 }

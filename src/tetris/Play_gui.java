@@ -13,33 +13,29 @@ import javax.swing.JPanel;
 
 public class Play_gui {
 	
-	final private int SIZE_X = 40;
-	final private int SIZE_Y = 40;
-
-	final private int LEFT = 0;
-	final private int RIGHT = 1;
+	final private int SIZE_X = 40;					// 블럭의 x길이
+	final private int SIZE_Y = 40;					// 블럭의 y길이
+    final private int BACKSIZE_X = 400/SIZE_X;		// 배경 격자 가로 한 줄의 길이
+	final private int BACKSIZE_Y = 800/SIZE_Y;		// 배경 격자 세로 한 줄의 길이
+	final private int LEFT = 0;						// 왼쪽 이동을 0이라고 지정함
+	final private int RIGHT = 1;					// 오른쪽 이동을 1이라고 지정함
+	final private int LEFT_LIMIT = 0;				// 화면의 왼쪽 경계
+	final private int RIGHT_LIMIT = 360;			// 화면의 오른쪽 경계
 	
-	final private int LEFT_LIMIT = 0;
-	final private int RIGHT_LIMIT = 360;
+	private int current_coord_X = 160;				// 최초 생성 x위치 및 블럭의 x위치 기록
+	private int current_coord_Y = 80;				// 최초 생성 y위치 및 블럭의 y위치 기록
 	
-	private int BACKSIZE_X = 400/SIZE_X;
-	private int BACKSIZE_Y = 800/SIZE_Y;
+	private Block blocks[] = new Block[4];			// 블럭 뭉치 배열
+	private int blockIndex;							// 몇 번째 블럭인지를 나타내는 인덱스 값
 	
-	private int current_coord_X = 160;
-	private int current_coord_Y = 0;
+	private Graphics painter;						// playPanel에 그림을 그릴 객체
 	
-	private Block blocks[] = new Block[4];
-	// 블럭 뭉치
-	private int blockIndex;
+	private Random rand = new Random();				// 랜덤 값을 반환할 객체
 	
-	private Graphics painter;
-	
-	private Random rand = new Random();
-	
-	private int location[][] = new int[BACKSIZE_Y+1][BACKSIZE_X];
+	private int location[][] = new int[BACKSIZE_Y+1][BACKSIZE_X];	// 배경 배열
 	// 블럭 위치 저장  : 메서드가 필요
 	
-	 private int shape[][][] = {
+	private int shape[][][] = {						// 블럭 모양 정보를 담은 배열
 			{{1,1,1,1},{0,0,0,0}},	// 일자
 			{{1,1,0},{0,1,1}},	// ㄹ자
 			{{0,1,1},{1,1,0}},	// 역 ㄹ자
@@ -50,9 +46,9 @@ public class Play_gui {
 	}; 
 	// 7개
 	
-	 private int selectedShape[][];
+	 private int selectedShape[][];					// blockIndex에 따라 선택된 배열 저장, 회전할 때 이용됨
 	
-	 private Color color[] = {
+	 private Color color[] = {						// 색 정보를 담은 배열
 			Color.RED,
 			Color.ORANGE,
 			Color.YELLOW,
@@ -62,9 +58,11 @@ public class Play_gui {
 			new Color(153,102,255)  //보라색
 	};
 	// 7개
-	private JFrame frame = new JFrame("Tetris");
-	private JPanel playPanel = new JPanel();
-	private JPanel scorePanel = new JPanel();
+	private JFrame frame = new JFrame("Tetris");	// gui 프레임
+	private JPanel playPanel = new JPanel();		// 테트리스 게임이 진행되는 패널
+	private JPanel scorePanel = new JPanel();		// 점수 등 기타 정보가 출력되는 패널
+	
+	private int score;								// 점수
 	
 	public Play_gui() {
 		
@@ -101,7 +99,7 @@ public class Play_gui {
 			public void run() {
 				
 				boolean hitFlag = false;
-				
+
 				for(Block block : blocks) {
 					if(location[block.getY()/40 + 2][block.getX()/40] == 1) {
 						for(Block result : blocks) {
@@ -109,7 +107,7 @@ public class Play_gui {
 						}
 						hitFlag = true;
 						current_coord_X = 160;
-						current_coord_Y = 0;
+						current_coord_Y = 80;
 						break;
 					}
 				}
@@ -117,12 +115,14 @@ public class Play_gui {
 				
 				if(hitFlag) {
 					initBlock();
+					checkLineFull();
 					hitFlag = false;
 				}
 				// 구조물이나 땅에 닿은 경우, 블럭들의 좌표를 초기 위치로 설정함.
 				for(Block block : blocks) {
 					block.setXY(block.getX(), block.getY() + 10);
 				}
+				
 				printBlocks();
 				// 블럭과 구조물 출력
 			}
@@ -150,13 +150,6 @@ public class Play_gui {
 		});
 	}
 	
-	private void addBlockCoord(int x, int y) {
-		for(Block block : blocks) {
-			block.addXY(x, y);
-		}
-	}
-	// 테트리스 블럭의 위치를 조정한다.
-	
 	private void setBlockShape() {
     	int row = -1; int col = -1;
     	int count = 0;
@@ -166,7 +159,7 @@ public class Play_gui {
     		for(int check : hor) {
     			row++;
     			if(check == 1) {
-    				blocks[count] = new Block(SIZE_X*row+current_coord_X, SIZE_Y*col+current_coord_Y, color[blockIndex]);
+    				blocks[count] = new Block(SIZE_X*row+current_coord_X, SIZE_Y*col, color[blockIndex]);
     				count++;
     			}
     			else continue;
@@ -179,37 +172,36 @@ public class Play_gui {
    		blockIndex = rand.nextInt(7);
 		selectedShape = shape[blockIndex];
 		setBlockShape();
+		
 	}
-	
-	
+
 	// 테트리스 블럭의 모양을 랜덤으로 설정한다.
 	// 블럭의 위치를 초기 위치로 설정한다.
 	
-	
 	private void rotateRight() {
-	// 2차원 배열을 90도 회전하기
 		int[][] rotated = new int[selectedShape[0].length][selectedShape.length];
 		for(int i=0; i<selectedShape[0].length; i++) {
-			// 오른쪽으로 90도 회전
 			for(int j=0; j<selectedShape.length; j++) {
 				rotated[i][j] = selectedShape[selectedShape.length-1-j][i];
-				System.out.print(rotated[i][j]);
 			}
-			System.out.println();
 		}
 		
-		System.out.println();
-		
-		current_coord_X = blocks[0].getX();
-		current_coord_Y = blocks[0].getY();
+		int[][] temp = selectedShape;
 		
 		selectedShape = rotated;
-
-		addBlockCoord(current_coord_X,0);
+		for(Block block : blocks) {
+			if((block.getX() < LEFT_LIMIT || block.getX() > RIGHT_LIMIT)||(block.getY()>800)) {
+				selectedShape = temp;
+				return;
+			}
+		}
+		
+		current_coord_Y = blocks[0].getY();
 		setBlockShape();
+		for(Block block : blocks) {
+			block.setXY(block.getX(), block.getY()+current_coord_Y);
+		}
 	}
-	
-	
 	
 	private void printBackground() {
 		for(int i=0; i<location.length; i++) {
@@ -254,10 +246,33 @@ public class Play_gui {
 			if(location[block.getY()/SIZE_Y][(block.getX()+x)/SIZE_X] == 1) return;
 		}
 		
+		current_coord_X += x;
 		for(Block block : blocks) {
 			block.addXY(x, 0);
 		}
 	}
 	// blocks의 모든 블럭에 대해 x좌표를 조정한다.
 
+	private void checkLineFull() {
+		int lineCount = 0;
+		int emptyCount = 0;
+		for(int i=0; i<location.length-1; i++) {
+			lineCount = 0;
+			for(int j=0; j<location[i].length;j++) {
+				if(location[i][j] == 1) lineCount ++;
+			}
+			if(lineCount ==  10) {
+				LineClear(i);
+			}
+		}
+	}
+	// location 배열 중 한 줄이 다 찼는지 확인
+	
+	private void LineClear(int row) {
+		for(int i = row; i>0; i--) {
+			location[i] = location[i-1];
+		}
+		printBackground();
+		
+	}
 }

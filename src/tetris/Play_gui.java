@@ -267,6 +267,11 @@ public class Play_gui {
 			}
 			if(lineCount ==  10) {
 				LineClear(i);
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -278,7 +283,6 @@ public class Play_gui {
 		}
 		printBackground();
 		score += 100;
-		
 		scoreLabel.setText("점수 : "+score+"점");
 	}
 }
